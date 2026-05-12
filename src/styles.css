@@ -3,3 +3,9 @@
 @import 'tailwindcss';
 @plugin 'flowbite/plugin';
 @source '../node_modules/flowbite';
+
+html,
+body {
+  min-height: 100%;
+  background-color: #111827;
+}
