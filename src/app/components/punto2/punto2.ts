@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CardItem } from './interfaces/card.type';
+import { CartEntry } from './interfaces/cart-entry.type';
 
 @Component({
   selector: 'app-punto2',
@@ -10,7 +11,7 @@ import { CardItem } from './interfaces/card.type';
   styleUrls: ['./punto2.css'],
 })
 export class Punto2 {
-  public cart: CardItem[] = [];
+  public cart: CartEntry[] = [];
   public isCartModalOpen = false;
 
   public cards: CardItem[] = [
@@ -72,8 +73,38 @@ export class Punto2 {
     },
   ];
 
+  public getCartCount(): number {
+    return this.cart.reduce((sum, e) => sum + e.quantity, 0);
+  }
+
+  public getCartTotal(): number {
+    return this.cart.reduce((sum, e) => sum + e.product.price * e.quantity, 0);
+  }
+
+  public isInCart(product: CardItem): boolean {
+    return this.cart.some(e => e.product.id === product.id);
+  }
+
   public addToCart(product: CardItem): void {
-    this.cart.push(product);
+    if (!this.isInCart(product)) {
+      this.cart.push({ product, quantity: 1 });
+    }
+  }
+
+  public increment(entry: CartEntry): void {
+    entry.quantity++;
+  }
+
+  public decrement(entry: CartEntry): void {
+    if (entry.quantity > 1) {
+      entry.quantity--;
+    } else {
+      this.removeEntry(entry);
+    }
+  }
+
+  public removeEntry(entry: CartEntry): void {
+    this.cart = this.cart.filter(e => e.product.id !== entry.product.id);
   }
 
   public openCartModal(): void {
@@ -82,9 +113,5 @@ export class Punto2 {
 
   public closeCartModal(): void {
     this.isCartModalOpen = false;
-  }
-
-  public getCartTotal(): number {
-    return this.cart.reduce((total, product) => total + product.price, 0);
   }
 }
