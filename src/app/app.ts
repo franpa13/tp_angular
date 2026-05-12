@@ -4,10 +4,11 @@ import { Punto1 } from "./components/punto1/punto1";
 import { initFlowbite } from 'flowbite';
 import { Punto2 } from "./components/punto2/punto2";
 import { Punto3 } from "./components/punto3/punto3";
+import { Punto4 } from './components/punto4/punto4';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, Punto1, Punto2, Punto3],
+  imports: [RouterOutlet, Punto1, Punto2, Punto3, Punto4],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })

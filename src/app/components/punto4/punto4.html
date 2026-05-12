@@ -1,0 +1,344 @@
+<section class="mx-auto max-w-6xl px-4 py-8">
+  <div class="rounded-lg border border-slate-700 bg-slate-900 p-6 shadow-lg">
+    <div class="mb-6 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+      <div>
+        <h2 class="text-2xl font-bold text-white">Punto 4 - Inscripcion a cursos</h2>
+        <p class="mt-1 text-sm text-slate-300">
+          Formulario gestionado con service Angular, descuento por categoria y resumen general.
+        </p>
+      </div>
+
+      <span class="rounded-lg bg-slate-800 px-3 py-2 text-sm font-semibold text-slate-200">
+        Nueva inscripcion
+      </span>
+    </div>
+
+    <form class="grid gap-4 md:grid-cols-2" (ngSubmit)="registrar()" #formInscripcion="ngForm">
+      <div>
+        <label class="mb-2 block text-sm font-medium text-slate-200" for="punto4-dni">DNI</label>
+        <input
+          id="punto4-dni"
+          name="dni"
+          type="text"
+          class="w-full rounded-lg border border-slate-600 bg-slate-800 px-3 py-2 text-white outline-none transition focus:border-cyan-400"
+          [(ngModel)]="inscripcion.dni"
+          required
+        >
+      </div>
+
+      <div>
+        <label class="mb-2 block text-sm font-medium text-slate-200" for="punto4-email">Email</label>
+        <input
+          id="punto4-email"
+          name="email"
+          type="email"
+          class="w-full rounded-lg border border-slate-600 bg-slate-800 px-3 py-2 text-white outline-none transition focus:border-cyan-400"
+          [(ngModel)]="inscripcion.email"
+          required
+        >
+      </div>
+
+      <div>
+        <label class="mb-2 block text-sm font-medium text-slate-200" for="punto4-curso">Curso</label>
+        <input
+          id="punto4-curso"
+          name="curso"
+          type="text"
+          class="w-full rounded-lg border border-slate-600 bg-slate-800 px-3 py-2 text-white outline-none transition focus:border-cyan-400"
+          [(ngModel)]="inscripcion.curso"
+          required
+        >
+      </div>
+
+      <div>
+        <label class="mb-2 block text-sm font-medium text-slate-200" for="punto4-fecha">
+          Fecha de inscripcion
+        </label>
+        <input
+          id="punto4-fecha"
+          name="fechaInscripcion"
+          type="date"
+          class="w-full rounded-lg border border-slate-600 bg-slate-800 px-3 py-2 text-white outline-none transition focus:border-cyan-400"
+          [(ngModel)]="inscripcion.fechaInscripcion"
+          required
+        >
+      </div>
+
+      <div>
+        <label class="mb-2 block text-sm font-medium text-slate-200" for="punto4-precio">
+          Precio del curso
+        </label>
+        <input
+          id="punto4-precio"
+          name="precio"
+          type="number"
+          min="1"
+          step="0.01"
+          class="w-full rounded-lg border border-slate-600 bg-slate-800 px-3 py-2 text-white outline-none transition focus:border-cyan-400"
+          [(ngModel)]="inscripcion.precio"
+          (ngModelChange)="calcularTotal()"
+          required
+        >
+      </div>
+
+      <div>
+        <label class="mb-2 block text-sm font-medium text-slate-200" for="punto4-categoria">
+          Categoria del alumno
+        </label>
+        <select
+          id="punto4-categoria"
+          name="categoriaAlumno"
+          class="w-full rounded-lg border border-slate-600 bg-slate-800 px-3 py-2 text-white outline-none transition focus:border-cyan-400"
+          [(ngModel)]="inscripcion.categoriaAlumno"
+          (change)="calcularTotal()"
+          required
+        >
+          <option [ngValue]="null" disabled>Seleccione una categoria</option>
+          <option *ngFor="let categoria of categoriasAlumno" [ngValue]="categoria.id">
+            {{ categoria.id }} - {{ categoria.nombre }} ({{ categoria.descuento }}% descuento)
+          </option>
+        </select>
+      </div>
+
+      <div class="md:col-span-2" *ngIf="precioTotal !== null">
+        <label class="block rounded-lg border border-cyan-500 bg-cyan-500/10 px-4 py-3 font-semibold text-cyan-100">
+          Precio total de la transaccion:
+          <span class="text-white">{{ precioTotal | currency:'ARS':'symbol':'1.2-2' }}</span>
+        </label>
+      </div>
+
+      <div class="flex flex-wrap justify-end gap-3 md:col-span-2">
+        <button
+          type="submit"
+          class="rounded-lg bg-cyan-600 px-5 py-2 font-semibold text-white transition hover:bg-cyan-700 disabled:cursor-not-allowed disabled:bg-slate-600"
+          [disabled]="formInscripcion.invalid"
+        >
+          Registrar
+        </button>
+      </div>
+    </form>
+  </div>
+</section>
+
+<section class="mx-auto max-w-6xl px-4 pb-8">
+  <div class="overflow-hidden rounded-lg border border-slate-700 bg-slate-900 shadow-lg">
+    <div class="border-b border-slate-700 px-6 py-4">
+      <h3 class="text-xl font-bold text-white">Listado de inscripciones</h3>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="angular-datatable w-full min-w-[940px] text-left text-sm">
+        <thead class="bg-slate-800 text-xs uppercase text-slate-300">
+          <tr>
+            <th class="px-4 py-3">DNI</th>
+            <th class="px-4 py-3">Email</th>
+            <th class="px-4 py-3">Curso</th>
+            <th class="px-4 py-3">Categoria</th>
+            <th class="px-4 py-3">Fecha</th>
+            <th class="px-4 py-3">Precio</th>
+            <th class="px-4 py-3">Total</th>
+            <th class="px-4 py-3 text-right">Acciones</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-700 text-slate-100">
+          <tr *ngIf="inscripciones.length === 0">
+            <td class="px-4 py-6 text-center text-slate-400" colspan="8">
+              Todavia no hay inscripciones registradas.
+            </td>
+          </tr>
+
+          <tr *ngFor="let item of inscripciones" class="transition hover:bg-slate-800/70">
+            <td class="px-4 py-3">{{ item.dni }}</td>
+            <td class="px-4 py-3">{{ item.email }}</td>
+            <td class="px-4 py-3 font-medium">{{ item.curso }}</td>
+            <td class="px-4 py-3">{{ getNombreCategoria(item.categoriaAlumno) }}</td>
+            <td class="px-4 py-3">{{ item.fechaInscripcion | date:'dd/MM/yyyy' }}</td>
+            <td class="px-4 py-3">{{ item.precio | currency:'ARS':'symbol':'1.2-2' }}</td>
+            <td class="px-4 py-3 font-semibold text-cyan-300">
+              {{ item.precioTotal | currency:'ARS':'symbol':'1.2-2' }}
+            </td>
+            <td class="px-4 py-3">
+              <div class="flex justify-end gap-2">
+                <button
+                  type="button"
+                  class="rounded-lg bg-amber-500 px-3 py-1 text-xs font-semibold text-slate-950 transition hover:bg-amber-400"
+                  (click)="editar(item)"
+                >
+                  Editar
+                </button>
+                <button
+                  type="button"
+                  class="rounded-lg bg-red-600 px-3 py-1 text-xs font-semibold text-white transition hover:bg-red-700"
+                  (click)="eliminar(item.id)"
+                >
+                  Eliminar
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<div
+  class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 py-6"
+  *ngIf="isEditModalOpen"
+>
+  <div class="max-h-full w-full max-w-4xl overflow-y-auto rounded-lg border border-slate-700 bg-slate-900 p-6 shadow-2xl">
+    <div class="mb-6 flex items-start justify-between gap-4">
+      <div>
+        <h3 class="text-xl font-bold text-white">Editar inscripcion</h3>
+        <p class="mt-1 text-sm text-slate-300">
+          Modifique los datos y confirme la actualizacion.
+        </p>
+      </div>
+
+      <button
+        type="button"
+        class="rounded-lg px-3 py-1 text-2xl leading-none text-slate-300 transition hover:bg-slate-800 hover:text-white"
+        (click)="cerrarModalEdicion()"
+        aria-label="Cerrar modal de edicion"
+      >
+        &times;
+      </button>
+    </div>
+
+    <form class="grid gap-4 md:grid-cols-2" (ngSubmit)="guardarEdicion()" #formEdicion="ngForm">
+      <div>
+        <label class="mb-2 block text-sm font-medium text-slate-200" for="punto4-edit-dni">DNI</label>
+        <input
+          id="punto4-edit-dni"
+          name="dniEdicion"
+          type="text"
+          class="w-full rounded-lg border border-slate-600 bg-slate-800 px-3 py-2 text-white outline-none transition focus:border-cyan-400"
+          [(ngModel)]="inscripcionEdicion.dni"
+          required
+        >
+      </div>
+
+      <div>
+        <label class="mb-2 block text-sm font-medium text-slate-200" for="punto4-edit-email">Email</label>
+        <input
+          id="punto4-edit-email"
+          name="emailEdicion"
+          type="email"
+          class="w-full rounded-lg border border-slate-600 bg-slate-800 px-3 py-2 text-white outline-none transition focus:border-cyan-400"
+          [(ngModel)]="inscripcionEdicion.email"
+          required
+        >
+      </div>
+
+      <div>
+        <label class="mb-2 block text-sm font-medium text-slate-200" for="punto4-edit-curso">Curso</label>
+        <input
+          id="punto4-edit-curso"
+          name="cursoEdicion"
+          type="text"
+          class="w-full rounded-lg border border-slate-600 bg-slate-800 px-3 py-2 text-white outline-none transition focus:border-cyan-400"
+          [(ngModel)]="inscripcionEdicion.curso"
+          required
+        >
+      </div>
+
+      <div>
+        <label class="mb-2 block text-sm font-medium text-slate-200" for="punto4-edit-fecha">
+          Fecha de inscripcion
+        </label>
+        <input
+          id="punto4-edit-fecha"
+          name="fechaInscripcionEdicion"
+          type="date"
+          class="w-full rounded-lg border border-slate-600 bg-slate-800 px-3 py-2 text-white outline-none transition focus:border-cyan-400"
+          [(ngModel)]="inscripcionEdicion.fechaInscripcion"
+          required
+        >
+      </div>
+
+      <div>
+        <label class="mb-2 block text-sm font-medium text-slate-200" for="punto4-edit-precio">
+          Precio del curso
+        </label>
+        <input
+          id="punto4-edit-precio"
+          name="precioEdicion"
+          type="number"
+          min="1"
+          step="0.01"
+          class="w-full rounded-lg border border-slate-600 bg-slate-800 px-3 py-2 text-white outline-none transition focus:border-cyan-400"
+          [(ngModel)]="inscripcionEdicion.precio"
+          (ngModelChange)="calcularTotalEdicion()"
+          required
+        >
+      </div>
+
+      <div>
+        <label class="mb-2 block text-sm font-medium text-slate-200" for="punto4-edit-categoria">
+          Categoria del alumno
+        </label>
+        <select
+          id="punto4-edit-categoria"
+          name="categoriaAlumnoEdicion"
+          class="w-full rounded-lg border border-slate-600 bg-slate-800 px-3 py-2 text-white outline-none transition focus:border-cyan-400"
+          [(ngModel)]="inscripcionEdicion.categoriaAlumno"
+          (change)="calcularTotalEdicion()"
+          required
+        >
+          <option [ngValue]="null" disabled>Seleccione una categoria</option>
+          <option *ngFor="let categoria of categoriasAlumno" [ngValue]="categoria.id">
+            {{ categoria.id }} - {{ categoria.nombre }} ({{ categoria.descuento }}% descuento)
+          </option>
+        </select>
+      </div>
+
+      <div class="md:col-span-2" *ngIf="precioTotalEdicion !== null">
+        <label class="block rounded-lg border border-cyan-500 bg-cyan-500/10 px-4 py-3 font-semibold text-cyan-100">
+          Precio total de la transaccion:
+          <span class="text-white">{{ precioTotalEdicion | currency:'ARS':'symbol':'1.2-2' }}</span>
+        </label>
+      </div>
+
+      <div class="flex flex-wrap justify-end gap-3 md:col-span-2">
+        <button
+          type="button"
+          class="rounded-lg border border-slate-500 px-5 py-2 font-semibold text-slate-200 transition hover:bg-slate-800"
+          (click)="cerrarModalEdicion()"
+        >
+          Cancelar
+        </button>
+
+        <button
+          type="submit"
+          class="rounded-lg bg-cyan-600 px-5 py-2 font-semibold text-white transition hover:bg-cyan-700 disabled:cursor-not-allowed disabled:bg-slate-600"
+          [disabled]="formEdicion.invalid"
+        >
+          Guardar cambios
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<section class="mx-auto max-w-6xl px-4 pb-10">
+  <div class="grid gap-4 md:grid-cols-4">
+    <div
+      class="rounded-lg border border-slate-700 bg-slate-900 p-4"
+      *ngFor="let resumen of resumenCategorias"
+    >
+      <p class="text-sm text-slate-400">{{ resumen.nombre }}</p>
+      <p class="mt-2 text-2xl font-bold text-white">{{ resumen.cantidad }}</p>
+      <p class="mt-1 text-sm font-semibold text-cyan-300">
+        {{ resumen.total | currency:'ARS':'symbol':'1.2-2' }}
+      </p>
+    </div>
+
+    <div class="rounded-lg border border-cyan-500 bg-cyan-500/10 p-4">
+      <p class="text-sm text-cyan-100">Total general</p>
+      <p class="mt-2 text-2xl font-bold text-white">
+        {{ totalGeneral | currency:'ARS':'symbol':'1.2-2' }}
+      </p>
+      <p class="mt-1 text-sm text-cyan-100">{{ inscripciones.length }} inscripciones</p>
+    </div>
+  </div>
+</section>

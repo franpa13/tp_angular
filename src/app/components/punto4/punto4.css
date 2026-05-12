@@ -1,0 +1,4 @@
+.angular-datatable th,
+.angular-datatable td {
+  white-space: nowrap;
+}
