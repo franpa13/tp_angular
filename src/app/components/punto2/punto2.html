@@ -7,87 +7,73 @@
         type="button"
         class="relative rounded-lg bg-emerald-500 px-4 py-2 text-white transition hover:bg-emerald-600"
         (click)="openCartModal()"
-        aria-label="Ver carrito"
-      >
+        aria-label="Ver carrito">
         &#128722;
-        <span
-          class="absolute -right-2 -top-2 flex h-6 min-w-6 items-center justify-center rounded-full bg-red-500 px-2 text-xs font-bold text-white"
-        >
+        <span class="absolute -right-2 -top-2 flex h-6 min-w-6 items-center justify-center rounded-full bg-red-500 px-2 text-xs font-bold text-white">
           {{ cart.length }}
         </span>
       </button>
     </div>
 
     <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-      <div
-        class="flex overflow-hidden rounded-lg bg-white shadow-md"
-        *ngFor="let card of cards"
-      >
-        <div class="flex w-full flex-col">
-          <img
-            [src]="card.img"
-            class="h-48 w-full object-cover"
-            [alt]="card.name"
-          >
-
-          <div class="flex flex-1 flex-col p-4">
-            <h5 class="text-lg font-semibold text-slate-900">{{ card.name }}</h5>
-            <p class="mt-2 text-sm text-slate-600">{{ card.description }}</p>
-            <p class="mt-auto pt-4 text-lg font-bold text-slate-900">$ {{ card.price }}</p>
-
-            <button
-              type="button"
-              class="mt-4 rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700"
-              (click)="addToCart(card)"
-            >
-              Agregar al carrito
-            </button>
+      @for (card of cards; track card.id) {
+        <div class="flex overflow-hidden rounded-lg bg-white shadow-md">
+          <div class="flex w-full flex-col">
+            <img [src]="card.img" class="h-48 w-full object-cover" [alt]="card.name">
+            <div class="flex flex-1 flex-col p-4">
+              <h5 class="text-lg font-semibold text-slate-900">{{ card.name }}</h5>
+              <p class="mt-2 text-sm text-slate-600">{{ card.description }}</p>
+              <p class="mt-auto pt-4 text-lg font-bold text-slate-900">$ {{ card.price }}</p>
+              <button
+                type="button"
+                class="mt-4 rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700"
+                (click)="addToCart(card)">
+                Agregar al carrito
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      }
     </div>
   </div>
 </section>
 
-<div
-  class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4"
-  *ngIf="isCartModalOpen"
->
-  <div class="w-full max-w-lg rounded-lg bg-white p-6 shadow-xl">
-    <div class="mb-4 flex items-center justify-between gap-4">
-      <h3 class="text-xl font-bold text-slate-900">Carrito</h3>
+@if (isCartModalOpen) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4">
+    <div class="w-full max-w-lg rounded-lg bg-white p-6 shadow-xl">
+      <div class="mb-4 flex items-center justify-between gap-4">
+        <h3 class="text-xl font-bold text-slate-900">Carrito</h3>
+        <button
+          type="button"
+          class="rounded-lg px-3 py-1 text-2xl leading-none text-slate-500 transition hover:bg-slate-100 hover:text-slate-900"
+          (click)="closeCartModal()"
+          aria-label="Cerrar carrito">
+          &#215;
+        </button>
+      </div>
 
-      <button
-        type="button"
-        class="rounded-lg px-3 py-1 text-2xl leading-none text-slate-500 transition hover:bg-slate-100 hover:text-slate-900"
-        (click)="closeCartModal()"
-        aria-label="Cerrar carrito"
-      >
-        &#215;
-      </button>
-    </div>
+      @if (cart.length === 0) {
+        <p class="text-sm text-slate-600">No hay productos agregados.</p>
+      }
 
-    <p class="text-sm text-slate-600" *ngIf="cart.length === 0">
-      No hay productos agregados.
-    </p>
-
-    <div class="max-h-80 space-y-3 overflow-y-auto" *ngIf="cart.length > 0">
-      <div
-        class="flex items-center justify-between gap-4 rounded-lg border border-slate-200 p-3"
-        *ngFor="let product of cart"
-      >
-        <div>
-          <p class="font-semibold text-slate-900">{{ product.name }}</p>
-          <p class="text-sm text-slate-500">{{ product.description }}</p>
+      @if (cart.length > 0) {
+        <div class="max-h-80 space-y-3 overflow-y-auto">
+          @for (product of cart; track $index) {
+            <div class="flex items-center justify-between gap-4 rounded-lg border border-slate-200 p-3">
+              <div>
+                <p class="font-semibold text-slate-900">{{ product.name }}</p>
+                <p class="text-sm text-slate-500">{{ product.description }}</p>
+              </div>
+              <p class="shrink-0 font-bold text-slate-900">$ {{ product.price }}</p>
+            </div>
+          }
         </div>
+      }
 
-        <p class="shrink-0 font-bold text-slate-900">$ {{ product.price }}</p>
+      <div class="mt-6 flex items-center justify-between border-t border-slate-200 pt-4">
+        <span class="text-lg font-semibold text-slate-900">Total</span>
+        <span class="text-xl font-bold text-emerald-600">$ {{ getCartTotal() }}</span>
       </div>
     </div>
-
-    <div class="mt-6 flex items-center justify-between border-t border-slate-200 pt-4">
-      <span class="text-lg font-semibold text-slate-900">Total</span>
-      <span class="text-xl font-bold text-emerald-600">$ {{ getCartTotal() }}</span>
-    </div>
   </div>
-</div>
+}

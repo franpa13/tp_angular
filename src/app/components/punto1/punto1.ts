@@ -38,8 +38,8 @@ export class Punto1 {
     this.moveImg(0);
   }
 
-  private logItems(): void {
-    console.log('Current items:', this.items);
+  goTo(index: number): void {
+    this.contador = index;
   }
 
   moveImg(move: number): void {
